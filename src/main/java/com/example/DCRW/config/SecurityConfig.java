@@ -6,12 +6,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity // security 관련 configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         // csrf disable - jwt는 세션을 stateless 상태로 관리하기 때문에 csrf 공격을 방어하지 않아도 되서 기본적으로 disable
@@ -29,7 +35,7 @@ public class SecurityConfig {
         // 인가 작업(경로에 따른 허용 권한 접근 관리)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "join").permitAll() // 모든 권한 허용
+                        .requestMatchers("/login", "/", "/signup").permitAll() // 모든 권한 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // admin이라는 접근은 ADMIN 권한만 가능
                         .anyRequest().authenticated()); // 이외 접근은 로그인 한 사용자만 접근 가능
 

@@ -1,11 +1,15 @@
 package com.example.DCRW.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 
 public class UserDto {
     private String userId, password, name, address;
+    @JsonProperty("birthdate")
     private Date birthDate;
     private String teacherCode;
+    private Date joinDate;
 
 //    private String provider, providerId; // 구글 OAuth는 나중에...
 
@@ -65,5 +69,14 @@ public class UserDto {
 
     public void setTeacherCode(String teacherCode) {
         this.teacherCode = teacherCode;
+    }
+
+
+    public Date getJoinDate() {
+        return joinDate;
+    }
+
+    public void setJoinDate(Date joinDate) {
+        this.joinDate = joinDate;
     }
 }
