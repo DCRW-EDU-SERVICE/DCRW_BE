@@ -33,10 +33,15 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
+    public String getCategory(String token){
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
     // payload에 저장될 정보 (username, role, 생성일, 만료일)
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createJwt(String category, String username, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("username", username) // payload에 claim으로 데이터 넣을 수 있음
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // 언제 발행 됐는지(현재 발행 시간)
