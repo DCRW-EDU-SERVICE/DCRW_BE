@@ -68,8 +68,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공 시(여기서 jwt 발급)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication){
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
+        String username = authentication.getName();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -78,7 +77,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // 토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 60*60*10L); // 프론트 로컬 스토리지에 저장
+        String access = jwtUtil.createJwt("access", username, role, 600000L); // 프론트 로컬 스토리지에 저장
         String refresh = jwtUtil.createJwt("refresh", username, role, 8640000L); // 쿠키에 저장
 
         // Refresh 토큰 저장
@@ -106,6 +105,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(401);
     }
 
+    // db에 refresh 토큰 추가
     private void addRefreshEntity(String username, String refresh, Long expiredMs){
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
