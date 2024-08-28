@@ -1,10 +1,6 @@
 package com.example.DCRW.config;
 
-import com.example.DCRW.jwt.CustomLogoutFilter;
-import com.example.DCRW.jwt.JwtFilter;
-import com.example.DCRW.jwt.JwtUtil;
-import com.example.DCRW.jwt.LoginFilter;
-import com.example.DCRW.repository.RefreshRepository;
+import com.example.DCRW.session.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +8,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -24,15 +21,11 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity // security 관련 configuration
-public class SecurityConfig {
+public class SecurityConfig{
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JwtUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
         this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
     }
 
     @Bean
@@ -66,13 +59,13 @@ public class SecurityConfig {
                             }
                         }));
 
-        // csrf disable - jwt는 세션을 stateless 상태로 관리하기 때문에 csrf 공격을 방어하지 않아도 되서 기본적으로 disable
-        http
-                .csrf((auth) -> auth.disable());
-
         // Form 로그인 방식 disable
         http
                 .formLogin((auth) -> auth.disable());
+
+        // 테스트에서 CSRF 보호 비활성화
+        http
+                .csrf(csrf -> csrf.disable());
 
         // http basic 인증 방식 disable
         http
@@ -85,23 +78,27 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("0") // admin이라는 접근은 ADMIN 권한만 가능
                         .anyRequest().authenticated()); // 이외 접근은 로그인 한 사용자만 접근 가능
 
-        // 필터 등록 - Login Filter 뒤에 토큰 검증 및 세션 생성하는 jwtFilter
-        http
-                .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class);
-
         // 필터 등록(시큐리티가 동작할 때 필터가 동작할 수 있도록) - UsernamePasswordAuthenticationFilter 대체해서 필터를 등록하기 때문에 그 자리에 등록하기 위해 addFilterAt()
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 
-        // 필터 등록 - Logout Filter 앞에
-        http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+        // 로그아웃 설정
+        http.logout(logout -> logout
+                .logoutUrl("/logout") // 로그아웃 URL 설정
+                .logoutSuccessUrl("/") // 로그아웃 성공 후 리다이렉트할 URL 설정
+                .invalidateHttpSession(true) // 세션 무효화 설정
+                .deleteCookies("JSESSIONID") // 특정 쿠키 삭제 설정
+                .addLogoutHandler(new SecurityContextLogoutHandler()) // 로그아웃 핸들러 추가
+                .permitAll()); // 모든 사용자에게 로그아웃 허용
 
-        // 세션 설정 - jwt는 항상 stateless 상태로 관리해야 한다. 매우 중요
+        // 세션 설정
         http
                 .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+                        // 로그인 시 세션을 새로 생성
+                        .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession) // 세션 고정 방지 설정
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션 필요할 때만 생성
+                        .maximumSessions(1) // 하나의 아이디에 대한 다중 로그인 허용 개수 설정
+                        .maxSessionsPreventsLogin(false)); // 다중 로그인 개수를 초과했을 경우 true 시 새로운 로그인 차단, false시 기존 세션 삭제
 
         return http.build();
     }

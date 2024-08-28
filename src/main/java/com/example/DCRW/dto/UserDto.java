@@ -1,11 +1,24 @@
 package com.example.DCRW.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
+@Getter
+@Setter
 public class UserDto {
-    private String userId, password, name, address;
+
+    @NotBlank(message = "아이디는 필수 입력값입니다.")
+    @Pattern(regexp = "^[a-z0-9]{4,20}$", message = "아이디는 영문 소문자와 숫자 4~20자리여야 합니다.")
+    private String userId;
+
+    private String password;
+    private String name;
+    private String address;
     @JsonProperty("birthdate")
     private Date birthDate;
     private String teacherCode;
@@ -23,60 +36,4 @@ public class UserDto {
         this.teacherCode = teacherCode;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public String getTeacherCode() {
-        return teacherCode;
-    }
-
-    public void setTeacherCode(String teacherCode) {
-        this.teacherCode = teacherCode;
-    }
-
-
-    public Date getJoinDate() {
-        return joinDate;
-    }
-
-    public void setJoinDate(Date joinDate) {
-        this.joinDate = joinDate;
-    }
 }
