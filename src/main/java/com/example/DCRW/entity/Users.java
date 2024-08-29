@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class Users {
     private String name;
 
     @Column(name = "birthdate")
-    private Date birthDate;
+    private LocalDate birthDate;
 
     private String address;
 
@@ -37,7 +38,7 @@ public class Users {
 
     public Users(){}
     @Builder
-    public Users(String userId, String password, String name, Date birthDate, String address) {
+    public Users(String userId, String password, String name, LocalDate birthDate, String address) {
         this.userId = userId;
         this.password = password;
         this.name = name;
