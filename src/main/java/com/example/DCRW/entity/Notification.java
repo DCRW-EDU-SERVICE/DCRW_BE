@@ -18,7 +18,7 @@ public class Notification {
     @Column(name = "notification_date")
     private Timestamp notificationDate;
     @Column(name = "read_status")
-    private int readStatus;
+    private int readStatus;  
 
     @ManyToOne
     @JoinColumn(name = "user_id")
