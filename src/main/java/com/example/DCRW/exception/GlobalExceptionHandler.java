@@ -7,6 +7,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,7 @@ public class GlobalExceptionHandler {
 
         ResultDto resultDto = ResultDto.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .message("유효성 검사 오류")
+                .message(ex.getMessage())
                 .data(errors)
                 .build();
 
@@ -39,14 +41,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(resultDto, HttpStatus.BAD_REQUEST);
     }
 
+    // 사용자 찾을 수 없음
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ResultDto<String>> handleResponseStatusException(ResponseStatusException ex) {
+        return new ResponseEntity<>(setDto(HttpStatus.NOT_FOUND, ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     // 그 외 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResultDto<String>> handleGenericException(Exception ex) {
-        ResultDto resultDto = ResultDto.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .message(ex.getMessage())
-                .build();
+        return new ResponseEntity<>(setDto(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
-        return new ResponseEntity<>(resultDto, HttpStatus.INTERNAL_SERVER_ERROR);
+    // 기본 예외 응답 dto (data 없음)
+    private ResultDto setDto(HttpStatus httpStatus, String message){
+        ResultDto resultDto = ResultDto.builder()
+                .status(httpStatus)
+                .message(message)
+                .build();
+        return resultDto;
     }
 }
