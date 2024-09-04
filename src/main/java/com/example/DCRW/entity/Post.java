@@ -1,12 +1,14 @@
 package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 @Table(name = "post")
 public class Post {
     @Id
@@ -33,5 +35,9 @@ public class Post {
     // 댓글
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comments> commentsList = new ArrayList<>();
+
+    // 파일
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<File> fileList = new ArrayList<>();
 
 }

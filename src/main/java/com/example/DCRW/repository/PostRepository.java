@@ -32,5 +32,17 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "where p.board = :board and p.category = :category")
     Page<PostResponseDto> searchPostCategory(@Param("board") Board board, Pageable pageable, @Param("category") Category category);
 
-    Page<PostResponseDto> searchPostTitle(Board board, Pageable pageable, String query);
+    @Query("select new com.example.DCRW.dto.board.PostResponseDto(p.title, p.content, p.postDate, p.users.name, p.category.categoryId) " +
+            "from Post p " +
+            "join p.users " +
+            "join p.category " +
+            "where p.board = :board and p.title like :query")
+    Page<PostResponseDto> searchPostTitle(@Param("board") Board board, Pageable pageable, @Param("query") String query);
+
+    @Query("select new com.example.DCRW.dto.board.PostResponseDto(p.title, p.content, p.postDate, p.users.name, p.category.categoryId) " +
+            "from Post p " +
+            "join p.users " +
+            "join p.category " +
+            "where p.board = :board and p.title like :query and p.category = :category")
+    Page<PostResponseDto> searchPostTitleCategory(Board board, Pageable pageable, Category category, String query);
 }

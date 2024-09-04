@@ -1,6 +1,7 @@
 package com.example.DCRW.controller;
 
 import com.example.DCRW.dto.ResultDto;
+import com.example.DCRW.dto.board.PostDetailDto;
 import com.example.DCRW.dto.board.PostPageDto;
 import com.example.DCRW.dto.board.PostResponseDto;
 import com.example.DCRW.service.board.BoardService;
@@ -40,8 +41,8 @@ public class BoardController {
     @GetMapping("/search")
     public ResponseEntity<ResultDto<Object>> searchPosts(
             @RequestParam("type") int boardType,
-            @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "category", required = false) Integer category,
+            @RequestParam(value = "query", required = false) String query,
             @RequestParam("page") int page,
             @RequestParam("size") int size) {
 
@@ -60,7 +61,7 @@ public class BoardController {
             postResponseDto = boardService.searchCategory(boardType, category, page, size);
         } else {
             // 카테고리도 검색어도 없는 경우 (전체 검색)
-            postResponseDto = boardService.searchAll(boardType, page, size);
+            postResponseDto = boardService.showPost(boardType, page, size);
         }
 
         PostPageDto<PostResponseDto> result = new PostPageDto<>(
@@ -81,9 +82,17 @@ public class BoardController {
 
 
     // 게시글 세부 조회
-    @GetMapping("{boardType}/posts/{postID}")
-    public ResponseEntity<ResultDto<Object>> detailPost(@PathVariable("boardType") int boardType, @PathVariable("postID") int postId){
-        return null;
+    @GetMapping("/posts/{postID}")
+    public ResponseEntity<ResultDto<Object>> detailPost(@PathVariable("postID") int postId){
+        PostDetailDto detailDtos = boardService.detailPost(postId);
+
+        ResultDto<Object> resultDto = ResultDto.builder()
+                .status(HttpStatus.OK)
+                .message("게시글 상세 조회 성공")
+                .data(detailDtos)
+                .build();
+
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
     // 게시글 등록
