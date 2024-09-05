@@ -1,8 +1,10 @@
 package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "category")
 public class Category {
     @Id

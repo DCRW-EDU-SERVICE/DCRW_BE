@@ -19,4 +19,12 @@ public class File {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 }
