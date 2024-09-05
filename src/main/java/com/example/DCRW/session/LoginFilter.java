@@ -1,10 +1,11 @@
 package com.example.DCRW.session;
 
-import com.example.DCRW.dto.CustomUserDetails;
-import com.example.DCRW.dto.LoginDto;
+import com.example.DCRW.dto.user.CustomUserDetails;
+import com.example.DCRW.dto.user.LoginDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -64,20 +65,41 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 세션 생성 및 사용자 정보 저장
         HttpSession session = request.getSession(true);  // 세션이 없으면 새로 생성
 
+        // 사용자 정보를 세션에 저장하기 전에 SecurityContext를 세션에 저장해야 함
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
         // 올바른 사용자 정보를 세션에 저장
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         session.setAttribute("username", userDetails.getUsername());  // 세션에 username 저장
         session.setAttribute("role", userDetails.getAuthorities().iterator().next().getAuthority());
 
+        // 응답에 세션 ID를 쿠키로 설정
+        response.addCookie(new Cookie("JSESSIONID", session.getId()));
+
+        // 응답을 JSON 형식으로 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write("Login successful");
+
+        // JSON 형식으로 응답
+        String jsonResponse = "{\"message\": \"Login successful\"}";
+        response.getWriter().write(jsonResponse);
     }
+
 
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         // 인증 실패 시 상태 코드 설정
+
+        // 응답을 JSON 형식으로 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write("Login failed");
+
+        // JSON 형식으로 응답
+        String jsonResponse = "{\"message\": \"Login failed\"}";
+        response.getWriter().write(jsonResponse);
     }
 }

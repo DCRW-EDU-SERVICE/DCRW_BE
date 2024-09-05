@@ -1,12 +1,14 @@
-package com.example.DCRW.service;
+package com.example.DCRW.service.user;
 
-import com.example.DCRW.dto.CustomUserDetails;
+import com.example.DCRW.dto.user.CustomUserDetails;
 import com.example.DCRW.entity.Users;
 import com.example.DCRW.repository.UsersRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -23,6 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             return new CustomUserDetails(users);
         }
 
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        throw new NoSuchElementException("사용자를 찾을 수 없습니다");
     }
 }

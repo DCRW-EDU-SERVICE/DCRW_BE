@@ -1,10 +1,11 @@
 package com.example.DCRW.controller;
 
 
-import com.example.DCRW.dto.*;
+import com.example.DCRW.dto.ResultDto;
+import com.example.DCRW.dto.user.*;
 import com.example.DCRW.entity.Users;
-import com.example.DCRW.service.ProfileService;
-import com.example.DCRW.service.RegisterService;
+import com.example.DCRW.service.user.ProfileService;
+import com.example.DCRW.service.user.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController

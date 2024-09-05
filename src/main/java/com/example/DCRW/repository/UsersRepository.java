@@ -1,6 +1,6 @@
 package com.example.DCRW.repository;
 
-import com.example.DCRW.dto.UserDto;
+import com.example.DCRW.dto.user.UserDto;
 import com.example.DCRW.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +12,6 @@ public interface UsersRepository extends JpaRepository<Users, String> {
 
     Users findByUserId(String username);
 
-    @Query("select new com.example.DCRW.dto.UserDto(u.name, u.birthDate, u.address, u.roleCode) from Users u where u.userId = :userId")
+    @Query("select new com.example.DCRW.dto.user.UserDto(u.name, u.birthDate, u.address, u.roleCode) from Users u where u.userId = :userId")
     UserDto showProfile(String userId);
 }
