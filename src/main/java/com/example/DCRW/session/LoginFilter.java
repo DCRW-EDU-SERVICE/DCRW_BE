@@ -34,14 +34,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         // 요청을 가로채서 요청에 담겨있는 username, password 받기
-        LoginDto loginDto;
+        LoginDto loginDto = new LoginDto();
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
             loginDto = objectMapper.readValue(messageBody, LoginDto.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("파싱 오류: " + e.getMessage());
         }
 
         String username = loginDto.getUserName();
