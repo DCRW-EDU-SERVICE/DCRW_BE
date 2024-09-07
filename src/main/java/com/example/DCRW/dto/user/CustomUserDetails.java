@@ -1,4 +1,4 @@
-package com.example.DCRW.dto;
+package com.example.DCRW.dto.user;
 
 import com.example.DCRW.entity.Users;
 import org.springframework.security.core.GrantedAuthority;

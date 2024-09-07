@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Entity
+@Table(name = "notification")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification {
     @Id

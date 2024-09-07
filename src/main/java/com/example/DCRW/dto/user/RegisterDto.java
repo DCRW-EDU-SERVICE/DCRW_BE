@@ -1,4 +1,4 @@
-package com.example.DCRW.dto;
+package com.example.DCRW.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class RegisterDto {
 
     @NotBlank(message = "아이디는 필수 입력값입니다.")
     @Pattern(regexp = "^[a-z0-9]{4,20}$", message = "아이디는 영문 소문자와 숫자 4~20자리여야 합니다.")
@@ -44,7 +44,7 @@ public class UserDto {
 //    private String provider, providerId; // 구글 OAuth는 나중에...
 
     @Builder
-    public UserDto(String userId, String password, String name, String address, LocalDate birthDate) {
+    public RegisterDto(String userId, String password, String name, String address, LocalDate birthDate) {
         this.userId = userId;
         this.password = password;
         this.name = name;

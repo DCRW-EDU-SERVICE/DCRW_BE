@@ -1,4 +1,4 @@
-package com.example.DCRW.dto;
+package com.example.DCRW.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Setter;
