@@ -11,8 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PostDetailDto {
+    private Integer postId;
     private String title;
     private int category;
     private String content;
-    private List<File> file;
+    private List<FileDto> file;
 }

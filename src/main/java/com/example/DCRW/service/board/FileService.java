@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,4 +88,12 @@ public class FileService {
         // 관리자 알림 등 추가 처리 로직
     }
 
+    // 파일 + 문자 URL 인코딩 적용
+    public String encodeFileName(String fileName) {
+        try {
+            return URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Encoding not supported", e);
+        }
+    }
 }

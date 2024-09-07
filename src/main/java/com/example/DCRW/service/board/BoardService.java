@@ -1,9 +1,6 @@
 package com.example.DCRW.service.board;
 
-import com.example.DCRW.dto.board.PostAddDto;
-import com.example.DCRW.dto.board.PostDetailDto;
-import com.example.DCRW.dto.board.PostResponseDto;
-import com.example.DCRW.dto.board.PostUpdateDto;
+import com.example.DCRW.dto.board.*;
 import com.example.DCRW.dto.user.CustomUserDetails;
 import com.example.DCRW.entity.*;
 import com.example.DCRW.repository.*;
@@ -32,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -132,19 +131,22 @@ public class BoardService {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다"));
 
-            // 파일 정보를 FileDto 리스트로 변환
-            List<File> fileList = post.getFileList().stream()
-                    .map(file -> File.builder()
+            // 파일 정보를 FileDto 리스트로 변환 (URL 포함)
+            List<FileDto> fileList = post.getFileList().stream()
+                    .map(file -> FileDto.builder()
+                            .fileId(file.getFileId())
                             .fileName(file.getFileName())
-                            .filePath(file.getFilePath())  // S3 URL 또는 서버 경로
+                            .fileUrl("http://localhost:8080/post/" + postId + "/" + fileService.encodeFileName(file.getFileName()))
+                            .fileType(file.getFileType())
                             .build())
                     .collect(Collectors.toList());
 
+            // 게시글 상세 정보에 파일 리스트 포함
             PostDetailDto postDetailDto = PostDetailDto.builder()
                     .title(post.getTitle())
                     .content(post.getContent())
                     .category(post.getCategory().getCategoryId())
-                    .file(fileList)  // 변환된 파일 리스트 추가
+                    .file(fileList)  // 파일 리스트
                     .build();
 
             return postDetailDto;
@@ -155,6 +157,7 @@ public class BoardService {
     }
 
 
+    // 게시글 등록
     @Transactional
     public int addPosts(PostAddDto postAddDto, List<File> files) {
         try {
@@ -184,8 +187,8 @@ public class BoardService {
             for (File file : files) {
                 file.setPost(post);
 
-                String uploadDir = System.getProperty("user.dir") + "/post/" + post.getPostId(); // 애플리케이션 루트 디렉토리 + /uploads 경로
-                Path filePath = Paths.get(uploadDir, file.getFileName()); // uploadDir + fileName을 결합해 파일 전체 경로 생성
+                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/post/" + post.getPostId(); // static 경로 + postId
+                Path filePath = Paths.get(uploadDir, file.getFileName()); // 전체 경로 생성 후 파일 저장
 
                 file.setFilePath(filePath.toString());
             }
@@ -200,7 +203,7 @@ public class BoardService {
     }
 
 
-    // 삭제
+    // 게시글 삭제
     @Transactional
     public void removePost(int postId) {
         Post post = postRepository.findById(postId)
@@ -224,7 +227,7 @@ public class BoardService {
         });
     }
 
-
+    // 게시글 수정
     @Transactional
     public void updatePost(int postId, PostUpdateDto postUpdateDto, List<MultipartFile> filesToAdd) {
 
@@ -266,8 +269,8 @@ public class BoardService {
                     // post 설정
                     file.setPost(post);
 
-                    String uploadDir = System.getProperty("user.dir") + "/post/" + post.getPostId(); // 애플리케이션 루트 디렉토리 + /uploads 경로
-                    Path filePath = Paths.get(uploadDir, file.getFileName()); // uploadDir + fileName을 결합해 파일 전체 경로 생성
+                    String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/post/" + post.getPostId(); // static 경로 + postId
+                    Path filePath = Paths.get(uploadDir, file.getFileName()); // 전체 경로 생성 후 파일 저장
 
                     file.setFilePath(filePath.toString());
                 }

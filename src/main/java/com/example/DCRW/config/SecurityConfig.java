@@ -78,7 +78,7 @@ public class SecurityConfig{
         // 인가 작업(경로에 따른 허용 권한 접근 관리)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/login.html").permitAll() // 모든 권한 허용
+                        .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/login.html", "/post/**").permitAll() // 모든 권한 허용
                         .requestMatchers("/admin/**").hasRole("0") // admin이라는 접근은 ADMIN 권한만 가능
                         .anyRequest().authenticated()); // 이외 접근은 로그인 한 사용자만 접근 가능
 
