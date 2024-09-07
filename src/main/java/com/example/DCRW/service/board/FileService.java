@@ -29,14 +29,11 @@ public class FileService {
             String fileType = file.getContentType();
 
             Long fileSize = file.getSize();
-            String uploadDir = System.getProperty("user.dir") + "/uploads"; // 애플리케이션 루트 디렉토리 + /uploads 경로
-            Path filePath = Paths.get(uploadDir, fileName); // uploadDir + fileName을 결합해 파일 전체 경로 생성
 
             File fileEntity = File.builder()
                     .fileName(fileName)
                     .fileSize(fileSize)
                     .fileType(fileType)
-                    .filePath(filePath.toString())
                     .uploadedAt(LocalDateTime.now())
                     .build();
 
@@ -61,7 +58,6 @@ public class FileService {
             ie.printStackTrace();
             throw new RuntimeException("파일 업로드 중 입출력 오류가 발생했습니다");
         } catch (Exception e){
-            System.out.println("==========="+fileList.get(0).getFileType());
             throw new RuntimeException("파일 업로드 중 오류가 발생했습니다 " + e.getMessage());
         }
     }

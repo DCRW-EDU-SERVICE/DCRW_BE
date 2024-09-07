@@ -183,6 +183,11 @@ public class BoardService {
 
             for (File file : files) {
                 file.setPost(post);
+
+                String uploadDir = System.getProperty("user.dir") + "/post/" + post.getPostId(); // 애플리케이션 루트 디렉토리 + /uploads 경로
+                Path filePath = Paths.get(uploadDir, file.getFileName()); // uploadDir + fileName을 결합해 파일 전체 경로 생성
+
+                file.setFilePath(filePath.toString());
             }
 
             int postId = postRepository.save(post).getPostId();
@@ -258,9 +263,13 @@ public class BoardService {
                 fileList = fileService.settingFile(filesToAdd);
 
                 for(File file : fileList){
-                    System.out.println("=============== "+file.getFileType());
                     // post 설정
                     file.setPost(post);
+
+                    String uploadDir = System.getProperty("user.dir") + "/post/" + post.getPostId(); // 애플리케이션 루트 디렉토리 + /uploads 경로
+                    Path filePath = Paths.get(uploadDir, file.getFileName()); // uploadDir + fileName을 결합해 파일 전체 경로 생성
+
+                    file.setFilePath(filePath.toString());
                 }
                 // file 엔티티 저장
                 fileRepository.saveAll(fileList);
