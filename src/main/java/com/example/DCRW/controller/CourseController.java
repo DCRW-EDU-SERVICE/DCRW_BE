@@ -1,6 +1,7 @@
 package com.example.DCRW.controller;
 
 import com.example.DCRW.dto.ResultDto;
+import com.example.DCRW.dto.course.CourseAddDto;
 import com.example.DCRW.dto.course.TeacherCourseDto;
 import com.example.DCRW.dto.user.CustomUserDetails;
 import com.example.DCRW.service.course.CourseService;
@@ -9,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +30,22 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .message("선생님 강의 관리 페이지 조회 성공")
                 .data(teacherCourseDto)
+                .build();
+
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/course")
+    public ResponseEntity<ResultDto<String>> addTeacherCourse(@RequestBody CourseAddDto courseAddDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Map<String, String> map = courseService.addTeacherCourse(courseAddDto, customUserDetails.getUsername());
+
+        ResultDto resultDto = ResultDto.builder()
+                .status(HttpStatus.OK)
+                .message("강의 생성 성공")
+                .data(map)
                 .build();
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);

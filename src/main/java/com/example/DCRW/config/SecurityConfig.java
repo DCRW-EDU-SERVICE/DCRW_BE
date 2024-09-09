@@ -80,6 +80,7 @@ public class SecurityConfig{
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/login.html", "/post/**").permitAll() // 모든 권한 허용
                         .requestMatchers("/admin/**").hasRole("0") // admin이라는 접근은 ADMIN 권한만 가능
+                        .requestMatchers("/teacher/**").hasRole("1") // teacher 권한만 접근 가능
                         .anyRequest().authenticated()); // 이외 접근은 로그인 한 사용자만 접근 가능
 
         // 필터 등록(시큐리티가 동작할 때 필터가 동작할 수 있도록) - UsernamePasswordAuthenticationFilter 대체해서 필터를 등록하기 때문에 그 자리에 등록하기 위해 addFilterAt()
