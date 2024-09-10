@@ -1,7 +1,6 @@
 package com.example.DCRW.dto.course;
 
 import com.example.DCRW.dto.course.plan.CoursePlanDto;
-import com.example.DCRW.entity.CoursePlan;
 import lombok.*;
 
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class CourseAddDto {
     private String title;
     private List<CoursePlanDto> coursePlanList;

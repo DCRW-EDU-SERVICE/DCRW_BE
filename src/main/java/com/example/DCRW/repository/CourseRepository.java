@@ -7,10 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     @Query("SELECT c FROM Course c WHERE c.users.userId LIKE :username")
     List<Course> courseFind(@Param("username") String username);
 
+
+    Optional<Course> findByCourseId(int courseId);
 }

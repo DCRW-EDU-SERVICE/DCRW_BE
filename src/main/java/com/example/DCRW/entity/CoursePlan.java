@@ -1,15 +1,14 @@
 package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "course_plan")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Getter
+@ToString
 public class CoursePlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +26,14 @@ public class CoursePlan {
     public CoursePlan(int week, String content, Course course) {
         this.week = week;
         this.content = content;
+        this.course = course;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setCourse(Course course) {
         this.course = course;
     }
 }

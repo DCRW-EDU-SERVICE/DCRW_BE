@@ -2,31 +2,27 @@ package com.example.DCRW.dto.user;
 
 import com.example.DCRW.entity.Users;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
     private final Users users;
+    private final String role;
 
-    public CustomUserDetails(Users users) {
+    public CustomUserDetails(Users users, String role) {
         this.users = users;
+        this.role = role;
     }
 
     // role 값 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return String.valueOf(users.getRoleCode());
-            }
-        });
-
-        return collection;
+        // 역할을 GrantedAuthority로 변환
+        return Collections.singleton(new SimpleGrantedAuthority(role));
     }
 
     // password 값 반환
