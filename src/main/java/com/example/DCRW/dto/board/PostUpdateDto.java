@@ -11,8 +11,8 @@ import java.util.Optional;
 @Getter
 @Setter
 public class PostUpdateDto {
-    private Optional<String> title;
-    private Optional<String> content;
+    private Optional<String> title = Optional.empty();
+    private Optional<String> content = Optional.empty();
     private List<Integer> fileDelete; // 삭제할 파일 ID 목록
     private List<MultipartFile> fileAdd; // 추가할 파일 목록
 }

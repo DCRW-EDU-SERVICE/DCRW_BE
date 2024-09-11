@@ -270,7 +270,7 @@ public class BoardServiceImpl implements BoardService{
                     // post 설정
                     file.setPost(post);
 
-                    String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/post/" + post.getPostId(); // static 경로 + postId
+                    String uploadDir = System.getProperty("user.dir") + "/posts/" + post.getPostId(); // static 경로 + postId
                     Path filePath = Paths.get(uploadDir, file.getFileName()); // 전체 경로 생성 후 파일 저장
 
                     file.setFilePath(filePath.toString());
