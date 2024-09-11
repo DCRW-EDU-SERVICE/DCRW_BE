@@ -38,6 +38,25 @@ public class CourseServiceImpl implements CourseService{
         return users;
     }
 
+    // 강의 수정, 삭제할 권한이 있는지 찾기
+    private Course findAuthority(int courseId, String username){
+        // 강의 찾기
+        Course course = courseRepository.findByCourseId(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("강의가 없습니다"));
+
+
+        if (course.getUsers() == null) {
+            throw new IllegalStateException("강의 등록자를 찾을 수 없습니다.");
+        }
+
+        // 요청한 유저의 사용자 이름과 강의의 유저 비교
+        if (!course.getUsers().getUserId().equals(username)) {
+
+            throw new SecurityException("사용자가 강의를 수정할 수 있는 권한이 없습니다");
+        }
+
+        return course;
+    }
 
     // 선생님 강의 화면 - 추후 권한 설정 필요
     @Override
@@ -110,23 +129,11 @@ public class CourseServiceImpl implements CourseService{
         }
     }
 
+    // 강의 수정
     @Override
     @Transactional
     public Course updateCourse(int courseId, CourseUpdateDto courseUpdateDto, String username) {
-        // 강의 찾기
-        Course course = courseRepository.findByCourseId(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("강의가 없습니다"));
-
-
-        if (course.getUsers() == null) {
-            throw new IllegalStateException("강의 등록자를 찾을 수 없습니다.");
-        }
-
-        // 요청한 유저의 사용자 이름과 강의의 유저 비교
-        if (!course.getUsers().getUserId().equals(username)) {
-
-            throw new SecurityException("사용자가 강의를 수정할 수 있는 권한이 없습니다");
-        }
+        Course course = findAuthority(courseId, username);
 
         try {
             // 강의 제목이 있을 경우 수정
@@ -168,6 +175,19 @@ public class CourseServiceImpl implements CourseService{
 
         } catch (Exception e){
             throw new RuntimeException("강의 수정에 오류 발생 " + e.getMessage());
+        }
+    }
+
+    // 강의 삭제
+    @Override
+    @Transactional
+    public void deleteCourse(int courseId, String username) {
+        Course course = findAuthority(courseId, username);
+
+        try{
+            courseRepository.delete(course);
+        } catch (Exception e){
+            throw new RuntimeException("강의 삭제에 오류 발생 " + e.getMessage());
         }
     }
 

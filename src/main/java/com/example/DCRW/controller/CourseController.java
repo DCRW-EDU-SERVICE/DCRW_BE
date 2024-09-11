@@ -92,4 +92,17 @@ public class CourseController {
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
+
+    // 강의 삭제
+    @DeleteMapping("/course/{courseID}")
+    public ResponseEntity<ResultDto<String>> deleteCourse(@PathVariable("courseID") int courseId){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        courseService.deleteCourse(courseId, customUserDetails.getUsername());
+
+        ResultDto<String> resultDto = ResultDto.res(HttpStatus.OK, "강의 삭제 성공");
+
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
 }

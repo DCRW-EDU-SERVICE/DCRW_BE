@@ -13,4 +13,6 @@ public interface CourseService {
     Map<String, String> addTeacherCourse(CourseAddDto courseAddDto, String username);
 
     Course updateCourse(int courseId, CourseUpdateDto courseUpdateDto, String username);
+
+    void deleteCourse(int courseId, String username);
 }
