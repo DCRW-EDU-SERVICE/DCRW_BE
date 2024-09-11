@@ -2,11 +2,13 @@ package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "enrollment")
+@Getter
 public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
