@@ -16,11 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +66,19 @@ public class CourseServiceImpl implements CourseService{
 
             List<CourseDto> courseDtoList = new ArrayList<>();
             for (Course course : courseList) {
-                List<StudentDto> studentList = enrollmentRepository.studentFind(course.getCourseId());
+                List<Users> studentListTemp = enrollmentRepository.studentFind(course.getCourseId());
+
+                List<StudentDto> studentList = new ArrayList<>();
+
+                for(Users student : studentListTemp){
+                    StudentDto studentDto = StudentDto.builder()
+                            .studentId(student.getUserId())
+                            .studentName(student.getName())
+                            .age(birthdateToAge(student.getBirthDate()))
+                            .build();
+
+                    studentList.add(studentDto);
+                }
 
                 CourseDto courseDto = CourseDto.builder()
                         .title(course.getTitle())
@@ -87,9 +97,25 @@ public class CourseServiceImpl implements CourseService{
             return teacherCourseDto;
 
         } catch (Exception e){
-            throw new RuntimeException("선생님 강의 관리 페이지 조회에 오류 발생 " + e.getMessage());
+            throw new RuntimeException("학생,강의 조회에 오류 발생 " + e.getMessage());
         }
     }
+
+
+    private int birthdateToAge(LocalDate birthDate) {
+        LocalDate nowDate = LocalDate.now();
+
+        int age = nowDate.getYear() - birthDate.getYear();
+
+        // 생일 안지났으면 나이를 하나 줄인다.
+        if (nowDate.getMonthValue() * 100 + nowDate.getDayOfMonth() <
+                birthDate.getMonthValue() * 100 + birthDate.getDayOfMonth()) {
+            age--;
+        }
+
+        return age;
+    }
+
 
     // 강의 생성
     @Override

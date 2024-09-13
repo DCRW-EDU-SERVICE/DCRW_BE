@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class CourseController {
     private final CourseService courseService;
 
-    // 교사 강의 관리 페이지
+    // 교사 강의 관리 페이지, 학생 관리 페이지
     @GetMapping("/course")
     public ResponseEntity<ResultDto<String>> teacherCoursePage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,7 +39,7 @@ public class CourseController {
 
         ResultDto resultDto = ResultDto.builder()
                 .status(HttpStatus.OK)
-                .message("교사 강의 관리 페이지 조회 성공")
+                .message("조회 성공")
                 .data(teacherCourseDto)
                 .build();
 
