@@ -2,7 +2,7 @@ package com.example.DCRW.controller;
 
 import com.example.DCRW.dto.ResultDto;
 import com.example.DCRW.dto.user.CustomUserDetails;
-import com.example.DCRW.dto.user.student.StudentRegisterDto;
+import com.example.DCRW.dto.user.student.StudentCourseDto;
 import com.example.DCRW.dto.user.student.StudentSearchDto;
 import com.example.DCRW.service.user.student.StudentManageService;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +44,19 @@ public class StudentManageController {
 
     // 학생 강의 등록
     @PostMapping("/student-management/register")
-    public ResponseEntity<ResultDto<String>> studentRegister(@RequestBody StudentRegisterDto studentRegisterDto){
+    public ResponseEntity<ResultDto<String>> studentRegister(@RequestBody StudentCourseDto studentCourseDto){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        studentManageService.studentRegister(customUserDetails.getUsername(), studentRegisterDto);
+        studentManageService.studentRegister(customUserDetails.getUsername(), studentCourseDto);
 
         ResultDto<String> resultDto = ResultDto.res(HttpStatus.OK, "등록 성공");
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
+
+//    // 학생 강의 삭제
+//    @DeleteMapping("/student-management")
+//    public ResponseEntity<ResultDto<String>> studentDelete(@RequestBody )
+
 }

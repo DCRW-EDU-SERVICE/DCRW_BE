@@ -1,6 +1,6 @@
 package com.example.DCRW.service.user.student;
 
-import com.example.DCRW.dto.user.student.StudentRegisterDto;
+import com.example.DCRW.dto.user.student.StudentCourseDto;
 import com.example.DCRW.dto.user.student.StudentSearchDto;
 import com.example.DCRW.entity.Course;
 import com.example.DCRW.entity.Enrollment;
@@ -33,18 +33,18 @@ public class StudentManageServiceImpl implements StudentManageService{
 
     @Override
     @Transactional
-    public void studentRegister(String username, StudentRegisterDto studentRegisterDto) {
-        Course course = courseRepository.findByCourseIdAndTeacherId(studentRegisterDto.getCourseId(), username);
+    public void studentRegister(String username, StudentCourseDto studentCourseDto) {
+        Course course = courseRepository.findByCourseIdAndTeacherId(studentCourseDto.getCourseId(), username);
         if(course == null){ // 강의가 존재하지 않으면
             throw new IllegalArgumentException("강의 잘못된 요청");
         }
 
-        Users users = usersRepository.findByUserId(studentRegisterDto.getStudentId());
+        Users users = usersRepository.findByUserId(studentCourseDto.getStudentId());
         if(users == null || users.getRoleCode() != 2){ // 학생 user가 존재하지 않거나, 존재하지만 role이 학생이 아니거나
             throw new IllegalArgumentException("학생 잘못된 요청");
         }
 
-        Enrollment enrollResult = enrollmentRepository.findByStudentIdAndCourseId(studentRegisterDto.getStudentId(), studentRegisterDto.getCourseId());
+        Enrollment enrollResult = enrollmentRepository.findByStudentIdAndCourseId(studentCourseDto.getStudentId(), studentCourseDto.getCourseId());
         if(enrollResult != null){ // 이미 수강중이면
             throw new IllegalArgumentException("현재 해당 강의를 듣고 있는 학생입니다");
         }
