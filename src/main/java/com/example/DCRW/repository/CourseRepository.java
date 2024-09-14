@@ -14,6 +14,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     @Query("SELECT c FROM Course c WHERE c.users.userId LIKE :username")
     List<Course> courseFind(@Param("username") String username);
 
-
     Optional<Course> findByCourseId(int courseId);
+
+    @Query("select c from Course c where c.courseId =:courseId and c.users.userId like :userId")
+    Course findByCourseIdAndTeacherId(@Param("courseId") int courseId, @Param("userId") String userId);
 }
