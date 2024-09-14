@@ -8,4 +8,6 @@ public interface StudentManageService {
     String searchStudentList(StudentSearchDto username);
 
     void studentRegister(String username, StudentCourseDto studentCourseDto);
+
+    void studentDelete(String username, StudentCourseDto studentCourseDto);
 }

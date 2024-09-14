@@ -62,4 +62,25 @@ public class StudentManageServiceImpl implements StudentManageService{
         }
 
     }
+
+    @Override
+    @Transactional
+    public void studentDelete(String username, StudentCourseDto studentCourseDto) {
+        // 내 강의가 맞는지 확인(교사)
+        Course course = courseRepository.findByCourseIdAndTeacherId(studentCourseDto.getCourseId(), username);
+        if(course == null){
+            throw new IllegalArgumentException("강의 잘못된 요청");
+        }
+
+        Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentCourseDto.getStudentId(), studentCourseDto.getCourseId());
+        if(enrollment == null){
+            throw new IllegalArgumentException("해당 강의를 수강하고 있지 않습니다");
+        }
+
+        try{
+             enrollmentRepository.delete(enrollment);
+        } catch (Exception e){
+            throw new RuntimeException("학생 강의 삭제 오류: " + e.getMessage());
+        }
+    }
 }

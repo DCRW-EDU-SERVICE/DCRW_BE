@@ -55,8 +55,16 @@ public class StudentManageController {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
-//    // 학생 강의 삭제
-//    @DeleteMapping("/student-management")
-//    public ResponseEntity<ResultDto<String>> studentDelete(@RequestBody )
+    // 학생 강의 삭제
+    @DeleteMapping("/student-management")
+    public ResponseEntity<ResultDto<String>> studentDelete(@RequestBody StudentCourseDto studentCourseDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        studentManageService.studentDelete(customUserDetails.getUsername(), studentCourseDto);
+
+        ResultDto<String> resultDto = ResultDto.res(HttpStatus.OK, "삭제 성공");
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
 
 }
