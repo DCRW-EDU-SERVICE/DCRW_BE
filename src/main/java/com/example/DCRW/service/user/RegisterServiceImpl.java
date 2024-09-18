@@ -64,10 +64,8 @@ public class RegisterServiceImpl implements RegisterService{
         try {
             String teacherId = teacherDto.getTeacherId();
 
-            Users users = userRepository.findByUserId(username);
-            if (users == null) {
-                throw new RuntimeException("사용자를 찾을 수 없습니다");
-            }
+            Users users = userRepository.findById(username)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
             users.setTeacherCode(teacherDto.getTeacherId());
             users.setRoleCode(1);

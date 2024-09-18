@@ -36,11 +36,8 @@ public class ProfileServiceImpl implements ProfileService{
     @Transactional
     public Users updateProfile(String username, UserUpdateDto userUpdateDto) throws SQLException {
         try {
-            Users users = usersRepository.findByUserId(username);
-
-            if(users == null){
-                throw new NoSuchElementException("프로필 업데이트 사용자 정보 찾을 수 없음");
-            }
+            Users users = usersRepository.findById(username)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
             userUpdateDto.getUserName().ifPresent(users::setName);
             userUpdateDto.getBirthDate().ifPresent(users::setBirthDate);

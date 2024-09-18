@@ -22,7 +22,8 @@ public class StudentManageServiceImpl implements StudentManageService{
 
     @Override
     public String searchStudentList(StudentSearchDto studentSearchDto) {
-        Users users = usersRepository.findByUserId(studentSearchDto.getStudentId());
+        Users users = usersRepository.findById(studentSearchDto.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
         // 학생이 아니면
         if(users.getRoleCode() != 2){
@@ -39,8 +40,9 @@ public class StudentManageServiceImpl implements StudentManageService{
             throw new IllegalArgumentException("강의 잘못된 요청");
         }
 
-        Users users = usersRepository.findByUserId(studentCourseDto.getStudentId());
-        if(users == null || users.getRoleCode() != 2){ // 학생 user가 존재하지 않거나, 존재하지만 role이 학생이 아니거나
+        Users users = usersRepository.findById(studentCourseDto.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("학생을 찾을 수 없습니다"));
+        if(users.getRoleCode() != 2){ // 학생 user가 존재하지 않거나, 존재하지만 role이 학생이 아니거나
             throw new IllegalArgumentException("학생 잘못된 요청");
         }
 
