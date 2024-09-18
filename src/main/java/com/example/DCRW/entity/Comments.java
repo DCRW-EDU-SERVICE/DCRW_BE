@@ -1,12 +1,17 @@
 package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Comments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
