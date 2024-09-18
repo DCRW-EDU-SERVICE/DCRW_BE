@@ -28,4 +28,7 @@ public class Comments {
     @JoinColumn(name = "user_id")
     private Users users;
 
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
