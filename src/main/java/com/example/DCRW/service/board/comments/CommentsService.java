@@ -11,4 +11,6 @@ public interface CommentsService {
 
 
     Comments updateComments(int postId, int commentsId, String userId, CommentDto commentDto);
+
+    void deleteComments(int postId, int commentsId, String username, CommentDto commentDto);
 }

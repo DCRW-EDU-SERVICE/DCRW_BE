@@ -10,6 +10,8 @@ import com.example.DCRW.repository.PostRepository;
 import com.example.DCRW.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -50,16 +52,34 @@ public class CommentsServiceImpl implements CommentsService {
         return commentsRepository.save(comments);
     }
 
+    @Override
+    @Transactional
+    public void deleteComments(int postId, int commentsId, String userId, CommentDto commentDto) {
+        Comments comments = validateComment(commentsId);
+        Users user = validateUser(userId);
+
+        if(comments.getUsers() != user){
+            throw new IllegalArgumentException("잘못된 입력");
+        }
+
+        commentsRepository.delete(comments);
+    }
+
+
+    // 유효성 검사
+    // users
     private Users validateUser(String userId) {
         return usersRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 사용자 ID"));
     }
 
+    // post
     private Post validatePost(int postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 포스트 ID"));
     }
 
+    // comments
     private Comments validateComment(int commentsId) {
         return commentsRepository.findById(commentsId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 댓글 ID"));

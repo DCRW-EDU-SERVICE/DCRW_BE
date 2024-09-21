@@ -59,8 +59,18 @@ public class CommentsController {
 
     // 댓글 삭제
     @DeleteMapping("/posts/{postId}/comments/{commentsId}")
-    public ResponseEntity<ResultDto<String>> deleteComments(){
+    public ResponseEntity<ResultDto<String>> deleteComments(@PathVariable("postId") int postId, @PathVariable("commentsId") int commentsId, @RequestBody CommentDto commentDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        commentsService.deleteComments(postId, commentsId, customUserDetails.getUsername(),commentDto);
+
+        ResultDto resultDto = ResultDto.builder()
+                .status(HttpStatus.OK)
+                .message("댓글 삭제 성공")
+                .build();
+
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
 
