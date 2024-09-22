@@ -12,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 
 @Repository
 @Transactional(readOnly = true)
@@ -47,4 +49,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "join p.category " +
             "where p.board = :board and p.title like :query and p.category = :category")
     Page<PostResponseDto> searchPostTitleCategory(Board board, Pageable pageable, Category category, String query);
+
+    @Query("select p from Post p where p.postId =:postId and p.users.userId =:username")
+    Optional<Post> findByIdAndUsers(@Param("postId") int postId, @Param("username") String username);
 }

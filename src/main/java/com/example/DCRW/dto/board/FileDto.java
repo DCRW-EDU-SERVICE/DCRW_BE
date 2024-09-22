@@ -13,5 +13,5 @@ public class FileDto {
     private String filePath;
     private String fileUrl;
     private String fileType;
-    private int fileSize;
+    private Long fileSize;
 }

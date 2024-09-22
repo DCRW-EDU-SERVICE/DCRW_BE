@@ -4,6 +4,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.DCRW.dto.board.FileDto;
 import com.example.DCRW.entity.File;
 import com.example.DCRW.entity.Post;
 import com.example.DCRW.repository.FileRepository;
@@ -56,19 +57,18 @@ public class FileServiceImpl implements FileService {
     // 파일 업로드 및 File 엔티티 설정
     @Override
     @Transactional
-    public List<File> uploadFiles(int postId, List<MultipartFile> files) throws IOException {
+    public List<File> uploadFiles(int postId, List<MultipartFile> files, String folder) throws IOException {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid post ID"));
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 post 입력"));
 
         List<File> fileList = new ArrayList<>();
         List<String> uploadedS3Keys = new ArrayList<>();
 
         try {
             for (MultipartFile file : files) {
-
                 String originalFileName = file.getOriginalFilename();
                 String uniqueFileName = generateUniqueFileName(originalFileName);
-                String s3Key = "posts/" + uniqueFileName;
+                String s3Key = folder + "/" + uniqueFileName;
                 String fileUrl = amazonS3Client.getUrl(bucket, s3Key).toString();
 
                 // 파일 메타데이터 설정
@@ -108,7 +108,6 @@ public class FileServiceImpl implements FileService {
                                 System.out.println("파일 삭제 성공 (롤백 시): " + s3Key);
                             } catch (Exception e) {
                                 System.err.println("파일 삭제 실패 (롤백 시): " + s3Key + ". 오류 메시지: " + e.getMessage());
-                                // 필요 시 추가적인 처리 로직
                             }
                         }
                     }
@@ -125,7 +124,6 @@ public class FileServiceImpl implements FileService {
 
         return fileList;
     }
-
 
 
     // 파일 삭제
