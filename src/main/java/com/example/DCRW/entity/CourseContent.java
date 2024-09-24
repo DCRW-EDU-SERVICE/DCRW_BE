@@ -1,13 +1,16 @@
 package com.example.DCRW.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "course_content")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class CourseContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,9 +18,15 @@ public class CourseContent {
 
     private int week;
 
+    private String fileName;
+
     private String filePath;
 
+    private String fileUrl;
+
     private String fileType;
+
+    private Long fileSize;
 
     private LocalDateTime uploadDate;
 

@@ -5,15 +5,15 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CourseFileDto {
+
     private int week;
+    private String fileName;
+    private String filePath;
+    private Long fileSize;
     private String fileUrl;
     private String fileType;
 
-    @Builder
-    public CourseFileDto(int week, String fileName, String fileUrl, String fileType, int fileSize) {
-        this.week = week;
-        this.fileUrl = fileUrl;
-        this.fileType = fileType;
-    }
 }
