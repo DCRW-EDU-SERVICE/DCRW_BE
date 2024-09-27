@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface CourseContentRepository extends JpaRepository<CourseContent, Integer> {
 
-    @Query("select c from CourseContent c where c.contentId =:courseId")
+    @Query("select c from CourseContent c where c.course.courseId =:courseId")
     List<CourseContent> findByCourseId(int courseId);
 }
