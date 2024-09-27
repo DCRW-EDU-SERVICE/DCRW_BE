@@ -41,7 +41,7 @@ public class ContentsController {
     // 강의 콘텐츠 추가
     @PostMapping("/contents")
     public ResponseEntity<ResultDto<Object>> addContents(
-            @RequestPart ContentAddDto contentAddDto,
+            @RequestPart(value = "content") ContentAddDto contentAddDto,
             @RequestPart(value = "file", required = false) List<MultipartFile> files) throws IOException {
 
         CustomUserDetails customUserDetails = getUsername(SecurityContextHolder.getContext().getAuthentication());
