@@ -15,6 +15,7 @@ import com.example.DCRW.repository.CourseRepository;
 import com.example.DCRW.repository.EnrollmentRepository;
 import com.example.DCRW.repository.UsersRepository;
 import com.example.DCRW.service.board.FileService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class ContentsServiceImpl implements ContentsService {
     }
 
     @Override
+    @Transactional
     public List<CourseFileDto> addContents(String username, List<MultipartFile> files, ContentAddDto contentDto, String folder) throws IOException {
         Users users = usersRepository.findById(username)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 사용자"));
