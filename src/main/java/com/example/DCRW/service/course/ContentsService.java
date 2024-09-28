@@ -1,16 +1,21 @@
 package com.example.DCRW.service.course;
 
-import com.example.DCRW.dto.course.ContentAddDto;
-import com.example.DCRW.dto.course.ContentDto;
-import com.example.DCRW.dto.course.ContentResponseDto;
-import com.example.DCRW.dto.course.CourseFileDto;
+import com.example.DCRW.dto.course.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface ContentsService {
-    ContentResponseDto showContents(ContentDto contentDto);
 
-    List<CourseFileDto> addContents(String username, List<MultipartFile> files, ContentAddDto contentAddDto, String folder) throws IOException;
+    // 교사 -> 강의 콘텐츠 조회
+    ContentResponseDto showContentsTeacher(ContentDto contentDto, String username);
+
+    // 학생 페이지 강의 콘텐츠 조회
+    ContentResponseDto showContentsStudent(int courseId, String username);
+
+    List<ContentFileResponseDto> addContents(String username, List<MultipartFile> files, ContentAddDto contentAddDto, String folder) throws IOException;
+
+    void deleteContents(int contentId, String username);
+
 }

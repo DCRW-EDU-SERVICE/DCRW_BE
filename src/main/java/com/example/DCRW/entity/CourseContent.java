@@ -35,5 +35,4 @@ public class CourseContent {
     @JoinColumn(name = "course_id")
     private Course course;
 
-
 }
