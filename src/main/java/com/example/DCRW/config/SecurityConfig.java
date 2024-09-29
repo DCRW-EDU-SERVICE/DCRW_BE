@@ -78,9 +78,9 @@ public class SecurityConfig{
         // 인가 작업(경로에 따른 허용 권한 접근 관리)
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/login.html", "/post/**").permitAll() // 모든 권한 허용
-                        .requestMatchers("/admin/**").hasRole("ROLE_ADMIN") // admin이라는 접근은 ADMIN 권한만 가능
-                        .requestMatchers("/teacher/**").hasAuthority("ROLE_TEACHER")// teacher 권한만 접근 가능
+                        .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/post/**").permitAll() // 모든 권한 허용
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // admin이라는 접근은 ADMIN 권한만 가능
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")// teacher 권한만 접근 가능
                         .anyRequest().authenticated()); // 이외 접근은 로그인 한 사용자만 접근 가능
 
         // 필터 등록(시큐리티가 동작할 때 필터가 동작할 수 있도록) - UsernamePasswordAuthenticationFilter 대체해서 필터를 등록하기 때문에 그 자리에 등록하기 위해 addFilterAt()
