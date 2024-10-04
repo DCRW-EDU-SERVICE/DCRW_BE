@@ -1,0 +1,20 @@
+package com.example.DCRW.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Configuration
+public class OpenAiConfig {
+    @Value("${openai.api.key}")
+    private String openAiKey;
+
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder()
+                .defaultHeader("Authorization", "Bearer " + openAiKey) // API 키 설정
+                .baseUrl("https://api.openai.com/v1") // 기본 URL 설정
+                .build();
+    }
+}

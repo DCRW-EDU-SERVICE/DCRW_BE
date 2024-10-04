@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,16 +20,16 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    @GetMapping("/quiz")
-    public ResponseEntity<ResultDto<String>> generateQuiz(@RequestParam("subject") int subjectId){
-        List<QuizResponseDto> quizList = quizService.generateQuiz(subjectId);
-
-        ResultDto resultDto = ResultDto.builder()
-                .status(HttpStatus.OK)
-                .message("퀴즈 생성 성공")
-                .data(quizList)
-                .build();
-
-        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    @GetMapping("/quiz/{subject}")
+    public Mono<ResponseEntity<ResultDto<List<QuizResponseDto>>>> generateQuiz(@PathVariable("subject") int subjectId){
+        return quizService.generateQuiz(subjectId)
+                .map(quizList -> {
+                    ResultDto<List<QuizResponseDto>> resultDto = ResultDto.<List<QuizResponseDto>>builder()
+                            .status(HttpStatus.OK)
+                            .message("퀴즈 생성 성공")
+                            .data(quizList)
+                            .build();
+                    return ResponseEntity.ok(resultDto);
+                });
     }
 }
