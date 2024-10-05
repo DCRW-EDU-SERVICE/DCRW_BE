@@ -67,9 +67,9 @@ public class SecurityConfig{
         http
                 .formLogin((auth) -> auth.disable());
 
-        // 테스트에서 CSRF 보호 비활성화
-        http
-                .csrf(csrf -> csrf.disable());
+//        // 테스트에서 CSRF 보호 비활성화
+//        http
+//                .csrf(csrf -> csrf.disable());
 
         // http basic 인증 방식 disable
         http
