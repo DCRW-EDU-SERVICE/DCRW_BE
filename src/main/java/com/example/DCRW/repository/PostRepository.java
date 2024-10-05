@@ -10,9 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 
 @Repository
+@Transactional(readOnly = true)
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
     // 게시글 전체 조회 (페이지 별 / 전체 게시판, 독서 게시판, 한글 게시판, 교육 게시판)
@@ -45,4 +49,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "join p.category " +
             "where p.board = :board and p.title like :query and p.category = :category")
     Page<PostResponseDto> searchPostTitleCategory(Board board, Pageable pageable, Category category, String query);
+
+    @Query("select p from Post p where p.postId =:postId and p.users.userId =:username")
+    Optional<Post> findByIdAndUsers(@Param("postId") int postId, @Param("username") String username);
 }

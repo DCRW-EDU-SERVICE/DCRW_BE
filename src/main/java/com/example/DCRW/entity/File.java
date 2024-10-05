@@ -19,6 +19,7 @@ public class File {
     private Long fileSize;
     private String fileType;
     private LocalDateTime uploadedAt;
+    private String fileUrl;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -29,12 +30,14 @@ public class File {
     }
 
     @Builder
-    public File(String fileName, Long fileSize, String fileType, String filePath, LocalDateTime uploadedAt) {
+    public File(String fileName, Long fileSize, String fileType, String filePath, LocalDateTime uploadedAt, String fileUrl, Post post) {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.fileType = fileType;
         this.filePath = filePath;
+        this.fileUrl = fileUrl;
         this.uploadedAt = uploadedAt;
+        this.post = post;
     }
 
     public void setFilePath(String filePath) {

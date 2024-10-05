@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface UsersRepository extends JpaRepository<Users, String> {
     Boolean existsByUserId(String username);
 
-    Users findByUserId(String username);
 
     @Query("select new com.example.DCRW.dto.user.UserDto(u.name, u.birthDate, u.address, u.roleCode) from Users u where u.userId = :userId")
     UserDto showProfile(String userId);

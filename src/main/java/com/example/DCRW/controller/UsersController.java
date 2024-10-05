@@ -32,7 +32,6 @@ public class UsersController {
     @PostMapping("/signup")
     public ResponseEntity<ResultDto<String>> signUp(@Valid @RequestBody RegisterDto registerDto) {
         // @Valid 사용으로 유효성 검사 실패하면 MethodArgumentNotValidException 예외 발생
-        System.out.println("user dto : " + registerDto);
         ResultDto resultDto = registerService.register(registerDto);
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
@@ -90,4 +89,14 @@ public class UsersController {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
+    // 교사 등록
+    @PatchMapping("/user/teacher")
+    public ResponseEntity<ResultDto<String>> updateTeacher(@RequestBody TeacherDto teacherDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        registerService.updateTeacher(teacherDto, customUserDetails.getUsername());
+
+        return new ResponseEntity<>(new ResultDto<>(HttpStatus.OK, "교사 코드 등록 성공"), HttpStatus.OK);
+    }
 }

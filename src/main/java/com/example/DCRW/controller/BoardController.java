@@ -2,12 +2,19 @@ package com.example.DCRW.controller;
 
 import com.example.DCRW.dto.ResultDto;
 import com.example.DCRW.dto.board.*;
+import com.example.DCRW.dto.user.CustomUserDetails;
 import com.example.DCRW.entity.File;
+import com.example.DCRW.entity.Post;
+import com.example.DCRW.repository.BoardRepository;
+import com.example.DCRW.repository.CategoryRepository;
+import com.example.DCRW.repository.UsersRepository;
 import com.example.DCRW.service.board.BoardService;
 import com.example.DCRW.service.board.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,9 +28,6 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
     private final FileService fileService;
-
-    // logger
-//    private final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     // 전체, 독서, 한글, 부모 게시판 전체 조회
     @GetMapping
@@ -99,46 +103,42 @@ public class BoardController {
 
     // 게시글 등록 -> content-type이 multipart/form-data
     @PostMapping("{boardType}/posts")
-    public ResponseEntity<ResultDto<Object>> addPosts(
+    public ResponseEntity<ResultDto<PostDetailDto>> addPosts(
             @RequestPart("post") PostAddDto postAddDto,
             @RequestPart(value = "file", required = false) List<MultipartFile> files) {
 
-        List<File> fileList = new ArrayList<>();
 
-        if (files != null && !files.isEmpty()) {
-            fileList = fileService.settingFile(files);
-        }
+        CustomUserDetails customUserDetails = getUsername(SecurityContextHolder.getContext().getAuthentication());
 
-        int postId = boardService.addPosts(postAddDto, fileList); // post DB 저장
 
-        if (files != null && !files.isEmpty()) {
-            fileService.saveFile(files, fileList); // 파일 저장
-        }
-
-        // 파일 저장 실패 시 데이터베이스 롤백
-        boardService.removePost(postId);
+        // 포스트 및 파일 업로드
+        PostDetailDto savedPost = boardService.addPost(customUserDetails.getUsername(), files, postAddDto);
 
         ResultDto resultDto = ResultDto.builder()
                 .status(HttpStatus.OK)
                 .message("게시글 등록 성공")
+                .data(savedPost)
                 .build();
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
+
     }
 
     // 게시글 수정
     @PatchMapping("{boardType}/posts/{postID}")
-    public ResponseEntity<ResultDto<Object>> updatePost(
+    public ResponseEntity<ResultDto<PostDetailDto>> updatePost(
             @PathVariable("boardType") int boardType,
             @PathVariable("postID") int postId,
             @RequestPart("post")PostUpdateDto postUpdateDto,
             @RequestPart(value = "file", required = false) List<MultipartFile> fileAddList) {
 
-        boardService.updatePost(postId, postUpdateDto, fileAddList);
+        CustomUserDetails customUserDetails = getUsername(SecurityContextHolder.getContext().getAuthentication());
+        PostDetailDto updatePost = boardService.updatePost(postId, postUpdateDto, fileAddList, customUserDetails.getUsername());
 
         ResultDto resultDto = ResultDto.builder()
                 .status(HttpStatus.OK)
                 .message("게시글 수정 성공")
+                .data(updatePost)
                 .build();
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
@@ -155,5 +155,10 @@ public class BoardController {
                 .build();
 
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
+    // 세션 username 추출
+    private CustomUserDetails getUsername(Authentication authentication){
+        return (CustomUserDetails) authentication.getPrincipal();
     }
 }

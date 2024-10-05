@@ -1,7 +1,6 @@
 package com.example.DCRW.service.board;
 
 import com.example.DCRW.dto.board.*;
-import com.example.DCRW.dto.user.CustomUserDetails;
 import com.example.DCRW.entity.*;
 import com.example.DCRW.repository.*;
 import jakarta.transaction.Transactional;
@@ -10,16 +9,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,23 +124,11 @@ public class BoardServiceImpl implements BoardService{
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다"));
 
-            // 파일 정보를 FileDto 리스트로 변환 (URL 포함)
-            List<FileDto> fileList = post.getFileList().stream()
-                    .map(file -> FileDto.builder()
-                            .fileId(file.getFileId())
-                            .fileName(file.getFileName())
-                            .fileUrl("http://localhost:8080/post/" + postId + "/" + fileService.encodeFileName(file.getFileName()))
-                            .fileType(file.getFileType())
-                            .build())
-                    .collect(Collectors.toList());
+            // 파일 정보를 FileDto 리스트로 변환
+            List<FileDto> fileList = convertToFileDtoList(post.getFileList());
 
             // 게시글 상세 정보에 파일 리스트 포함
-            PostDetailDto postDetailDto = PostDetailDto.builder()
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .category(post.getCategory().getCategoryId())
-                    .file(fileList)  // 파일 리스트
-                    .build();
+            PostDetailDto postDetailDto = buildPostDetailDto(post, fileList);
 
             return postDetailDto;
 
@@ -154,49 +137,44 @@ public class BoardServiceImpl implements BoardService{
         }
     }
 
-
     // 게시글 등록
     @Override
     @Transactional
-    public int addPosts(PostAddDto postAddDto, List<File> files) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            Users users = usersRepository.findById(customUserDetails.getUsername())
-                    .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
-
-            Board board = boardRepository.findById(postAddDto.getBoardId())
-                    .orElseThrow(() -> new IllegalArgumentException("게시판이 존재하지 않습니다"));
-
-            Category category = categoryRepository.findById(postAddDto.getCategory())
-                    .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다"));
-
-
+    public PostDetailDto addPost(String username, List<MultipartFile> files, PostAddDto postAddDto) {
+        try{
+            // 포스트 엔티티 생성
             Post post = Post.builder()
                     .title(postAddDto.getTitle())
                     .content(postAddDto.getContent())
-                    .users(users)
-                    .board(board)
-                    .category(category)
+                    .users(usersRepository.findById(username)
+                            .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다")))
+                    .board(boardRepository.findById(postAddDto.getBoardId())
+                            .orElseThrow(() -> new IllegalArgumentException("게시판이 존재하지 않습니다")))
+                    .category(categoryRepository.findById(postAddDto.getCategory())
+                            .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다")))
                     .postDate(LocalDateTime.now())
-                    .fileList(files)
                     .build();
 
-            for (File file : files) {
-                file.setPost(post);
+            Post savedPost  = postRepository.save(post);
 
-                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/post/" + post.getPostId(); // static 경로 + postId
-                Path filePath = Paths.get(uploadDir, file.getFileName()); // 전체 경로 생성 후 파일 저장
+            // 파일 업로드 및 저장
+            List<FileDto> fileList = new ArrayList<>();
+            if (files != null && !files.isEmpty()) {
+                List<File> uploadedFiles = fileService.uploadFiles(savedPost.getPostId(), files, "posts");
+                if (savedPost.getFileList() == null) {
+                    savedPost.setFileList(new ArrayList<>()); // 초기화
+                }
+                savedPost.getFileList().addAll(uploadedFiles);
 
-                file.setFilePath(filePath.toString());
+                // 파일 정보를 FileDto 리스트로 변환
+                fileList = convertToFileDtoList(post.getFileList());
             }
 
-            int postId = postRepository.save(post).getPostId();
+            // 게시글 상세 정보에 파일 리스트 포함
+            return buildPostDetailDto(post, fileList);
 
-            return postId;
         } catch (Exception e) {
-            throw new RuntimeException("게시글 업로드에 실패했습니다");
+            throw new RuntimeException("게시글 업로드에 실패했습니다: " + e.getMessage());
         }
 
     }
@@ -230,61 +208,71 @@ public class BoardServiceImpl implements BoardService{
     // 게시글 수정
     @Override
     @Transactional
-    public void updatePost(int postId, PostUpdateDto postUpdateDto, List<MultipartFile> filesToAdd) {
-
-        // 게시글 조회
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+    public PostDetailDto updatePost(int postId, PostUpdateDto postUpdateDto, List<MultipartFile> filesToAdd, String username) {
         try {
-            postUpdateDto.getTitle().ifPresent(post::setTitle); // title 값이 있을 때만 업데이트
-            postUpdateDto.getContent().ifPresent(post::setContent); // content 값이 있을 때만 업데이트
+            // 게시글 조회
+            Post post = postRepository.findByIdAndUsers(postId, username)
+                    .orElseThrow(() -> new IllegalArgumentException("게시글, 사용자 잘못된 입력"));
 
+            // 게시글 제목 및 내용 업데이트
+            postUpdateDto.getTitle().ifPresent(post::setTitle);
+            postUpdateDto.getContent().ifPresent(post::setContent);
             postRepository.save(post); // 변경된 엔티티 저장
-        } catch (Exception e){
-            throw new RuntimeException("제목, 내용 수정에 오류가 발생했습니다. " + e.getMessage());
-        }
 
-        try {
-            List<File> deleteList = new ArrayList<>();
-            // 파일 삭제 요청 있는 경우
-            if (postUpdateDto.getFileDelete() != null) {
-                for (int fileId : postUpdateDto.getFileDelete()) {
-                    // 파일 유무 확인
-                    File file = fileRepository.findById(fileId)
-                            .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없어요"));
+            // 파일 삭제 요청 처리
+            handleFileDeletions(postUpdateDto.getFileDelete());
 
-                    deleteList.add(file);
-                    fileRepository.delete(file); // 파일 db에서 삭제
-                }
-                fileService.deleteFilesAfterCommit(deleteList);
-            }
-
-            // 파일 추가 요청 있는 경우
-            List<File> fileList;
-
+            // 파일 추가 요청 처리
             if (filesToAdd != null && !filesToAdd.isEmpty()) {
-                // 파일 엔티티 리스트 세팅
-                fileList = fileService.settingFile(filesToAdd);
-
-                for(File file : fileList){
-                    // post 설정
-                    file.setPost(post);
-
-                    String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/post/" + post.getPostId(); // static 경로 + postId
-                    Path filePath = Paths.get(uploadDir, file.getFileName()); // 전체 경로 생성 후 파일 저장
-
-                    file.setFilePath(filePath.toString());
-                }
-                // file 엔티티 저장
-                fileRepository.saveAll(fileList);
-
-                // 서버에 파일 저장
-                fileService.saveFile(filesToAdd, fileList);
+                fileService.uploadFiles(postId, filesToAdd, "posts");
             }
-        } catch (Exception e){
 
-            throw new RuntimeException("파일 업로드에 오류가 발생했습니다." + e.getMessage());
+            // 파일 정보를 FileDto 리스트로 변환
+            List<FileDto> fileList = convertToFileDtoList(post.getFileList());
+
+            // 게시글 상세 정보에 파일 리스트 포함
+            return buildPostDetailDto(post, fileList);
+
+        } catch (Exception e) {
+            throw new RuntimeException("파일 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
+
+    private void handleFileDeletions(List<Integer> fileDeleteIds) throws IOException {
+        if (fileDeleteIds != null) {
+            List<File> deleteList = new ArrayList<>();
+            for (int fileId : fileDeleteIds) {
+                File file = fileRepository.findById(fileId)
+                        .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없어요"));
+                deleteList.add(file);
+                fileRepository.delete(file); // 파일 DB에서 삭제
+            }
+            fileService.deleteFilesAfterCommit(deleteList); // S3에서 파일 삭제
+        }
+    }
+
+    // file dto 리스트 셋팅 반환
+    private List<FileDto> convertToFileDtoList(List<File> files) {
+        return files.stream()
+                .map(file -> FileDto.builder()
+                        .fileId(file.getFileId())
+                        .fileName(file.getFileName())
+                        .filePath(file.getFilePath())
+                        .fileUrl(file.getFileUrl())
+                        .fileType(file.getFileType())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // post detail dto 셋팅 반환
+    private PostDetailDto buildPostDetailDto(Post post, List<FileDto> fileList) {
+        return PostDetailDto.builder()
+                .title(post.getTitle())
+                .content(post.getContent())
+                .category(post.getCategory().getCategoryId())
+                .file(fileList)  // 파일 리스트
+                .build();
+    }
+
 
 }

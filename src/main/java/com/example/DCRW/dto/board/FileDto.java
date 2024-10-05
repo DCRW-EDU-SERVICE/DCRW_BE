@@ -10,7 +10,8 @@ import lombok.Setter;
 public class FileDto {
     private Long fileId;
     private String fileName;
+    private String filePath;
     private String fileUrl;
     private String fileType;
-    private int fileSize;
+    private Long fileSize;
 }
