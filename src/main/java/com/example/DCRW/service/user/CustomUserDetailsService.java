@@ -19,12 +19,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users users = usersRepository.findByUserId(username);
-        if(users != null){
-            return new CustomUserDetails(users);
+    public UserDetails loadUserByUsername(String username){
+
+        Users users = usersRepository.findById(username)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        // 권한 매핑
+        String role;
+        if (users.getRoleCode() == 1) {
+            role = "ROLE_TEACHER"; // role이 1일 경우 ROLE_TEACHER
+        } else if (users.getRoleCode() == 0) {
+            role = "ROLE_ADMIN"; // role이 0일 경우 ROLE_ADMIN
+        } else {
+            role = "ROLE_USER"; // 나머지 ROLE_USER
         }
 
-        throw new NoSuchElementException("사용자를 찾을 수 없습니다");
+        return new CustomUserDetails(users, role);
     }
 }

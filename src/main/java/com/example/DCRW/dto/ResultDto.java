@@ -19,8 +19,8 @@ public class ResultDto<T> {
         this.data = null;
     }
 
-    public static<T> ResultDto<T> res(final HttpStatus statusCode, final String resultMsg) {
-        return res(statusCode, resultMsg, null);
+    public static<T> ResultDto<T> res(final HttpStatus status, final String message) {
+        return res(status, message, null);
     }
 
     public static<T> ResultDto<T> res(final HttpStatus statusCode, final String resultMsg, final T t) {

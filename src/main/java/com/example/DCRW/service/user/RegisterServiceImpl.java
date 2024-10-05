@@ -2,8 +2,10 @@ package com.example.DCRW.service.user;
 
 import com.example.DCRW.dto.ResultDto;
 import com.example.DCRW.dto.user.RegisterDto;
+import com.example.DCRW.dto.user.TeacherDto;
 import com.example.DCRW.entity.Users;
 import com.example.DCRW.repository.UsersRepository;
+import org.hibernate.sql.exec.ExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,10 +50,30 @@ public class RegisterServiceImpl implements RegisterService{
         }
     }
 
+    // user id 중복 체크
     @Override
     @Transactional(readOnly = true)
     public boolean checkUsernameDuplication(String username){
         Boolean isExist = userRepository.existsByUserId(username);
         return isExist;
+    }
+
+    @Override
+    @Transactional
+    public void updateTeacher(TeacherDto teacherDto, String username) {
+        try {
+            String teacherId = teacherDto.getTeacherId();
+
+            Users users = userRepository.findById(username)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+            users.setTeacherCode(teacherDto.getTeacherId());
+            users.setRoleCode(1);
+
+            userRepository.save(users);
+
+        } catch (Exception e){
+            throw new RuntimeException("교사 코드 등록 오류: " + e.getMessage());
+        }
     }
 }

@@ -4,7 +4,6 @@ import com.example.DCRW.dto.board.PostAddDto;
 import com.example.DCRW.dto.board.PostDetailDto;
 import com.example.DCRW.dto.board.PostResponseDto;
 import com.example.DCRW.dto.board.PostUpdateDto;
-import com.example.DCRW.entity.File;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +28,7 @@ public interface BoardService {
 
     // 게시글 등록
     @Transactional
-    int addPosts(PostAddDto postAddDto, List<File> files);
+    PostDetailDto addPost(String username, List<MultipartFile> files, PostAddDto postAddDto);
 
     // 게시글 삭제
     @Transactional
@@ -37,5 +36,7 @@ public interface BoardService {
 
     // 게시글 수정
     @Transactional
-    void updatePost(int postId, PostUpdateDto postUpdateDto, List<MultipartFile> filesToAdd);
+    PostDetailDto updatePost(int postId, PostUpdateDto postUpdateDto, List<MultipartFile> filesToAdd, String username);
+
+
 }
