@@ -31,20 +31,24 @@ jobs:
           java-version: '17'
           distribution: 'adopt' # 사용할 JDK 배포판
 
-      # 3. Gradle을 사용하여 프로젝트를 빌드 (테스트는 제외 - `-x test` 옵션 사용)
+      # 3. gradlew 실행 권한 설정
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+        
+      # 4. Gradle을 사용하여 프로젝트를 빌드 (테스트는 제외 - `-x test` 옵션 사용)
       # 테스트를 실행하지 않으려면 -x test 사용, 테스트 포함 시 이 옵션 제거 가능
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 4. Docker Hub에 로그인 (GitHub Secrets에 저장된 Docker Hub 사용자명과 비밀번호를 사용)
+      # 5. Docker Hub에 로그인 (GitHub Secrets에 저장된 Docker Hub 사용자명과 비밀번호를 사용)
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 5. Docker 이미지 빌드 (Docker Hub 사용자명과 함께 'dcrw:latest' 태그로 이미지 생성)
+      # 6. Docker 이미지 빌드 (Docker Hub 사용자명과 함께 'dcrw:latest' 태그로 이미지 생성)
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/dcrw:latest .
 
-      # 6. 빌드된 Docker 이미지를 Docker Hub에 푸시 (푸시할 때 'latest' 태그로 지정)
+      # 7. 빌드된 Docker 이미지를 Docker Hub에 푸시 (푸시할 때 'latest' 태그로 지정)
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/dcrw:latest
 
