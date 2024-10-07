@@ -29,6 +29,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
+          distribution: 'adopt' # 사용할 JDK 배포판
 
       # 3. Gradle을 사용하여 프로젝트를 빌드 (테스트는 제외 - `-x test` 옵션 사용)
       # 테스트를 실행하지 않으려면 -x test 사용, 테스트 포함 시 이 옵션 제거 가능
