@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  app:
+    build:                           # 이미지를 빌드하기 위한 설정
+      context: .                     # Dockerfile이 위치한 디렉토리 (현재 디렉토리)
+      dockerfile: Dockerfile          # 사용할 Dockerfile (이름이 Dockerfile일 경우 생략 가능)
+    ports:
+      - "8080:8080"                  # 호스트:컨테이너 포트 매핑
+    environment:                     # 환경 변수 설정 (필요에 따라 추가 가능)
+      - SPRING_PROFILES_ACTIVE=prod   # 예: Spring Boot에서 prod 프로파일 활성화
