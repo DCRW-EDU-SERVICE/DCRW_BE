@@ -67,6 +67,7 @@ jobs:
           username: ${{ secrets.EC2_USER }} # EC2 인스턴스의 SSH 사용자명 (보통 'ec2-user')
           key: ${{ secrets.EC2_KEY }}     # GitHub Secrets에 저장된 EC2 인스턴스의 SSH 키
           port: 22                       # EC2 SSH 연결 포트 (기본값: 22)
+          debug: true
           script: |                      # EC2에 접속 후 실행할 스크립트
             # 2. 최신 Docker 이미지를 Docker Hub에서 EC2 서버로 가져옴
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/dcrw:latest
