@@ -69,8 +69,8 @@ public class SecurityConfig{
                 .formLogin((auth) -> auth.disable());
 
 //        // 테스트에서 CSRF 보호 비활성화
-//        http
-//                .csrf(csrf -> csrf.disable());
+        http
+                .csrf(csrf -> csrf.disable());
 
         // http basic 인증 방식 disable
         http
@@ -78,10 +78,10 @@ public class SecurityConfig{
 
         // 인가 작업(경로에 따른 허용 권한 접근 관리)
         http
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 쿠키로 전달
-                        .ignoringRequestMatchers("/login", "/signup")  // CSRF 보호 비활성화
-                )
+//                .csrf(csrf -> csrf
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 쿠키로 전달
+//                        .ignoringRequestMatchers("/login", "/signup")  // CSRF 보호 비활성화
+//                )
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/signup", "/swagger-ui/**", "/v3/api-docs/**", "/**.html").permitAll() // 모든 권한 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN") // admin이라는 접근은 ADMIN 권한만 가능
